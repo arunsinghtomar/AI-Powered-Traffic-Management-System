@@ -1,0 +1,3831 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Traffic Management System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+
+    <!--It's CSS Documentry-->
+
+    <Style>
+        :root {
+            --primary-bg: #121826;
+            --secondary-bg: #1a2332;
+            --card-bg: #1e2936;
+            --text-primary: #e2e8f0;
+            --text-secondary: #a0aec0;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --traffic-free: #10b981;
+            --traffic-moderate: #f59e0b;
+            --traffic-heavy: #ef4444;
+            --traffic-gridlock: #991b1b;
+            --border-color: #2d3748;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --sos: #dc2626;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--primary-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Header and Navigation */
+        header {
+            background-color: var(--secondary-bg);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--accent);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        /* Page Sections */
+        .page-section {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .page-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Cards */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Home Page */
+        .home-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--accent);
+        }
+
+        .feature-title {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .feature-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Traffic Map */
+        .map-container {
+            height: 500px;
+            background-color: var(--primary-bg);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid var(--border-color);
+        }
+
+        .map-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--primary-bg);
+            color: var(--text-secondary);
+        }
+
+        /* Traffic Legend */
+        .traffic-legend {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-warning {
+            background-color: var(--warning);
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-sos {
+            background-color: var(--sos);
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+            padding: 1rem 2rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(220, 38, 38, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+            }
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        /* Trip Cards */
+        .trip-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .trip-info h3 {
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .trip-info p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .trip-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .trip-actions button {
+            padding: 0.5rem;
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .trip-actions button:hover {
+            background-color: var(--accent);
+        }
+
+        /* Route Options */
+        .route-option {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .route-option:hover {
+            border-color: var(--accent);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+        }
+
+        .route-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .route-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .route-time {
+            color: var(--text-secondary);
+        }
+
+        .route-details {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .route-detail {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .route-traffic {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .traffic-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        /* Eco Points */
+        .eco-card {
+            background: linear-gradient(135deg, #1e2936, #2d3748);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .eco-points {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--success);
+            margin: 1rem 0;
+        }
+
+        .eco-level {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .eco-progress {
+            height: 10px;
+            background-color: var(--secondary-bg);
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .eco-progress-bar {
+            height: 100%;
+            background-color: var(--success);
+            width: 65%;
+        }
+
+        /* Rewards */
+        .rewards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .reward-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s;
+        }
+
+        .reward-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .reward-image {
+            height: 150px;
+            background-color: var(--secondary-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+        }
+
+        .reward-content {
+            padding: 1rem;
+        }
+
+        .reward-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .reward-points {
+            color: var(--success);
+            font-weight: 500;
+        }
+
+        /* Feedback */
+        .feedback-item {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .feedback-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .feedback-user {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .feedback-rating {
+            color: var(--warning);
+        }
+
+        .feedback-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .feedback-action {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .feedback-action:hover {
+            color: var(--accent);
+        }
+
+        /* Chatbot */
+        .chatbot-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 350px;
+            height: 500px;
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-color);
+            z-index: 1000;
+            transform: translateY(600px);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .chatbot-container.active {
+            transform: translateY(0);
+        }
+
+        .chatbot-header {
+            background-color: var(--accent);
+            color: white;
+            padding: 1rem;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chatbot-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .chatbot-message {
+            max-width: 80%;
+            padding: 0.75rem;
+            border-radius: 10px;
+        }
+
+        .chatbot-message.user {
+            background-color: var(--accent);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 0;
+        }
+
+        .chatbot-message.bot {
+            background-color: var(--secondary-bg);
+            color: var(--text-primary);
+            align-self: flex-start;
+            border-bottom-left-radius: 0;
+        }
+
+        .chatbot-input {
+            display: flex;
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .chatbot-input input {
+            flex: 1;
+            padding: 0.75rem;
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px 0 0 6px;
+            color: var(--text-primary);
+        }
+
+        .chatbot-input button {
+            padding: 0.75rem;
+            background-color: var(--accent);
+            border: none;
+            border-radius: 0 6px 6px 0;
+            color: white;
+            cursor: pointer;
+        }
+
+        .chatbot-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+            z-index: 999;
+        }
+
+        /* Admin Panel */
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .data-table th {
+            background-color: var(--secondary-bg);
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .data-table tr:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-approved {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .status-pending {
+            background-color: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .status-rejected {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Modals */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: transform 0.3s;
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            border-left: 4px solid var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            max-width: 400px;
+            transform: translateX(500px);
+            transition: transform 0.3s ease-in-out;
+            z-index: 1500;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            border-left-color: var(--success);
+        }
+
+        .notification.warning {
+            border-left-color: var(--warning);
+        }
+
+        .notification.error {
+            border-left-color: var(--danger);
+        }
+
+        .notification-icon {
+            font-size: 1.5rem;
+        }
+
+        .notification.success .notification-icon {
+            color: var(--success);
+        }
+
+        .notification.warning .notification-icon {
+            color: var(--warning);
+        }
+
+        .notification.error .notification-icon {
+            color: var(--danger);
+        }
+
+        .notification-close {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .header-container {
+                padding: 0 1rem;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+
+            .home-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .chatbot-container {
+                width: calc(100% - 40px);
+                right: 20px;
+                left: 20px;
+            }
+
+            .admin-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .trip-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .trip-actions {
+                margin-top: 1rem;
+                align-self: flex-end;
+            }
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top: 3px solid var(--accent);
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Utility Classes */
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-1 {
+            margin-top: 0.5rem;
+        }
+
+        .mt-2 {
+            margin-top: 1rem;
+        }
+
+        .mt-3 {
+            margin-top: 1.5rem;
+        }
+
+        .mt-4 {
+            margin-top: 2rem;
+        }
+
+        .mb-1 {
+            margin-bottom: 0.5rem;
+        }
+
+        .mb-2 {
+            margin-bottom: 1rem;
+        }
+
+        .mb-3 {
+            margin-bottom: 1.5rem;
+        }
+
+        .mb-4 {
+            margin-bottom: 2rem;
+        }
+
+        .p-1 {
+            padding: 0.5rem;
+        }
+
+        .p-2 {
+            padding: 1rem;
+        }
+
+        .p-3 {
+            padding: 1.5rem;
+        }
+
+        .p-4 {
+            padding: 2rem;
+        }
+
+        .d-flex {
+            display: flex;
+        }
+
+        .justify-content-between {
+            justify-content: space-between;
+        }
+
+        .align-items-center {
+            align-items: center;
+        }
+
+        .flex-column {
+            flex-direction: column;
+        }
+
+        .w-100 {
+            width: 100%;
+        }
+    </Style>
+
+
+
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <i class="fas fa-traffic-light"></i>
+                <span>AI Traffic Management</span>
+            </div>
+            <nav class="nav-links">
+                <a href="#" class="nav-link active" data-page="home">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+                <a href="#" class="nav-link" data-page="register-trip">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Register Trip</span>
+                </a>
+                <a href="#" class="nav-link" data-page="tracking">
+                    <i class="fas fa-map-marked-alt"></i>
+                    <span>Tracking</span>
+                </a>
+                <a href="#" class="nav-link" data-page="route-finder">
+                    <i class="fas fa-route"></i>
+                    <span>Route Finder</span>
+                </a>
+                <a href="#" class="nav-link" data-page="eco-rewards">
+                    <i class="fas fa-leaf"></i>
+                    <span>Eco Rewards</span>
+                </a>
+                <a href="#" class="nav-link" data-page="feedback">
+                    <i class="fas fa-comment-dots"></i>
+                    <span>Feedback</span>
+                </a>
+                <a href="#" class="nav-link" data-page="admin-panel">
+                    <i class="fas fa-cogs"></i>
+                    <span>Admin Panel</span>
+                </a>
+            </nav>
+            <div class="user-menu">
+                <button class="btn btn-primary" id="loginBtn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Login</span>
+                </button>
+                <div class="user-avatar" id="userAvatar" style="display: none;">
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Home Page -->
+        <section id="home" class="page-section active">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Welcome to AI Traffic Management System</h2>
+                </div>
+                <p>Smart traffic management powered by AI to make your journeys safer, faster, and more efficient.</p>
+            </div>
+
+            <div class="home-grid">
+                <div class="feature-card" data-page="register-trip">
+                    <div class="feature-icon">
+                        <i class="fas fa-plus-circle"></i>
+                    </div>
+                    <h3 class="feature-title">Register Trip</h3>
+                    <p class="feature-description">Plan your journey and get necessary permits for interstate travel.
+                    </p>
+                </div>
+
+                <div class="feature-card" data-page="tracking">
+                    <div class="feature-icon">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Live Tracking</h3>
+                    <p class="feature-description">Track your vehicle and get real-time traffic updates.</p>
+                </div>
+
+                <div class="feature-card" data-page="route-finder">
+                    <div class="feature-icon">
+                        <i class="fas fa-route"></i>
+                    </div>
+                    <h3 class="feature-title">Route Finder</h3>
+                    <p class="feature-description">Find the best routes with real-time traffic analysis.</p>
+                </div>
+
+                <div class="feature-card" data-page="eco-rewards">
+                    <div class="feature-icon">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <h3 class="feature-title">Eco Rewards</h3>
+                    <p class="feature-description">Earn points for eco-friendly travel and redeem rewards.</p>
+                </div>
+
+                <div class="feature-card" data-page="feedback">
+                    <div class="feature-icon">
+                        <i class="fas fa-comment-dots"></i>
+                    </div>
+                    <h3 class="feature-title">Feedback</h3>
+                    <p class="feature-description">Share your experience and help us improve our services.</p>
+                </div>
+
+                <div class="feature-card" data-page="admin-panel">
+                    <div class="feature-icon">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <h3 class="feature-title">Admin Panel</h3>
+                    <p class="feature-description">Monitor and manage traffic for government officials.</p>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h2 class="card-title">Live Traffic Map</h2>
+                </div>
+                <div class="map-container">
+                    <input id="cityInput" type="text" placeholder="Search City..." style="position:absolute; top:10px; left:50%; transform:translateX(-50%);
+                                    z-index:999; width:300px; padding:8px; border-radius:5px; border:1px solid #ccc;">
+                    <div id="map" style="width:100%; height:500px;"></div>
+                    <div id="distanceResult" style="margin:10px; font-weight:bold; color:blue;">
+                        Distance info will appear here...
+                    </div>
+                </div>
+                <div class="traffic-legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: var(--traffic-free);"></div>
+                        <span>Free Flow</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: var(--traffic-moderate);"></div>
+                        <span>Moderate Traffic</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: var(--traffic-heavy);"></div>
+                        <span>Heavy Traffic</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: var(--traffic-gridlock);"></div>
+                        <span>Traffic Gridlock</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Register Trip Page -->
+        <section id="register-trip" class="page-section">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Register New Trip</h2>
+                </div>
+                <p>Fill in the details to register your trip and get necessary permits.</p>
+            </div>
+
+            <div class="card">
+                <form id="tripForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="originState">Origin State</label>
+                            <select class="form-select" id="originState" required>
+                                <option value="">Select State</option>
+                                <option value="california">California</option>
+                                <option value="texas">Texas</option>
+                                <option value="florida">Florida</option>
+                                <option value="newyork">New York</option>
+                                <option value="pennsylvania">Pennsylvania</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="originDistrict">Origin District</label>
+                            <input type="text" class="form-input" id="originDistrict" placeholder="Enter district"
+                                required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="originPlace">Origin Place</label>
+                            <input type="text" class="form-input" id="originPlace" placeholder="Enter place" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="destState">Destination State</label>
+                            <select class="form-select" id="destState" required>
+                                <option value="">Select State</option>
+                                <option value="california">California</option>
+                                <option value="texas">Texas</option>
+                                <option value="florida">Florida</option>
+                                <option value="newyork">New York</option>
+                                <option value="pennsylvania">Pennsylvania</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="destDistrict">Destination District</label>
+                            <input type="text" class="form-input" id="destDistrict" placeholder="Enter district"
+                                required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="destPlace">Destination Place</label>
+                            <input type="text" class="form-input" id="destPlace" placeholder="Enter place" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="vehicleType">Vehicle Type</label>
+                            <select class="form-select" id="vehicleType" required>
+                                <option value="">Select Vehicle Type</option>
+                                <option value="car">Car</option>
+                                <option value="motorcycle">Motorcycle</option>
+                                <option value="truck">Truck</option>
+                                <option value="bus">Bus</option>
+                                <option value="van">Van</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="vehicleNumber">Vehicle Number</label>
+                            <input type="text" class="form-input" id="vehicleNumber" placeholder="Enter vehicle number"
+                                required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="tripDate">Trip Date</label>
+                            <input type="date" class="form-input" id="tripDate" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="purpose">Purpose of Trip</label>
+                        <textarea class="form-textarea" id="purpose" rows="3" placeholder="Enter purpose of your trip"
+                            required></textarea>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i>
+                            <span>Register Trip</span>
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="resetTripForm">
+                            <i class="fas fa-redo"></i>
+                            <span>Reset</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Your Registered Trips</h2>
+                </div>
+                <div id="tripsList">
+                    <div class="trip-card">
+                        <div class="trip-info">
+                            <h3>Trip ID: TRP789456</h3>
+                            <p>California, Los Angeles → Texas, Houston</p>
+                            <p>Vehicle: Car | Date: 2023-06-15</p>
+                        </div>
+                        <div class="trip-actions">
+                            <button title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button title="Edit Trip">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button title="Cancel Trip">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="trip-card">
+                        <div class="trip-info">
+                            <h3>Trip ID: TRP789457</h3>
+                            <p>Florida, Miami → New York, New York City</p>
+                            <p>Vehicle: Truck | Date: 2023-06-20</p>
+                        </div>
+                        <div class="trip-actions">
+                            <button title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button title="Edit Trip">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button title="Cancel Trip">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tracking Page -->
+        <section id="tracking" class="page-section">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Live Vehicle Tracking</h2>
+                </div>
+                <p>Track your vehicle and get real-time traffic updates.</p>
+            </div>
+
+            <div class="card">
+                <div class="map-container">
+                    <div class="map-placeholder">
+                        <div>
+                            <i class="fas fa-map-marked-alt fa-3x mb-3"></i>
+                            <p>Live Vehicle Tracking Map</p>
+                            <p class="text-secondary">Real-time location and traffic data</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Public Transport Tracking</h2>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="citySelect">Select City</label>
+                    <select class="form-select" id="citySelect">
+                        <option value="">Select City</option>
+                        <option value="newyork">New York</option>
+                        <option value="losangeles">Los Angeles</option>
+                        <option value="chicago">Chicago</option>
+                        <option value="houston">Houston</option>
+                        <option value="phoenix">Phoenix</option>
+                    </select>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="trackBuses">
+                        <i class="fas fa-bus"></i>
+                        <span>Track Buses</span>
+                    </button>
+                    <button class="btn btn-primary" id="trackTrains">
+                        <i class="fas fa-train"></i>
+                        <span>Track Trains</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Active Vehicles</h2>
+                </div>
+                <div class="data-table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Vehicle ID</th>
+                                <th>Type</th>
+                                <th>Route</th>
+                                <th>Status</th>
+                                <th>ETA</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>BUS001</td>
+                                <td>Bus</td>
+                                <td>Downtown - Airport</td>
+                                <td><span class="status-badge status-approved">On Time</span></td>
+                                <td>15 min</td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary">Track</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>TRN045</td>
+                                <td>Train</td>
+                                <td>Central - Suburb</td>
+                                <td><span class="status-badge status-warning">Delayed</span></td>
+                                <td>30 min</td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary">Track</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>BUS078</td>
+                                <td>Bus</td>
+                                <td>University - Mall</td>
+                                <td><span class="status-badge status-approved">On Time</span></td>
+                                <td>5 min</td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary">Track</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Route Finder Page -->
+        <section id="route-finder" class="page-section">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Find Best Route</h2>
+                </div>
+                <p>Get the most efficient route based on real-time traffic data.</p>
+            </div>
+
+            <div class="card">
+                <form id="routeForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="routeOrigin">Origin</label>
+                            <input type="text" class="form-input" id="routeOrigin" placeholder="Enter origin" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="routeDestination">Destination</label>
+                            <input type="text" class="form-input" id="routeDestination" placeholder="Enter destination"
+                                required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="routeVehicle">Vehicle Type</label>
+                            <select class="form-select" id="routeVehicle" required>
+                                <option value="">Select Vehicle Type</option>
+                                <option value="car">Car</option>
+                                <option value="motorcycle">Motorcycle</option>
+                                <option value="truck">Truck</option>
+                                <option value="bus">Bus</option>
+                                <option value="van">Van</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i>
+                            <span>Find Routes</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Available Routes</h2>
+                </div>
+                <div id="routesList">
+                    <div class="route-option">
+                        <div class="route-header">
+                            <div class="route-name">Fastest Route</div>
+                            <div class="route-time">25 min</div>
+                        </div>
+                        <div class="route-details">
+                            <div class="route-detail">
+                                <i class="fas fa-road"></i>
+                                <span>15.2 miles</span>
+                            </div>
+                            <div class="route-detail">
+                                <i class="fas fa-tachometer-alt"></i>
+                                <span>Via Highway</span>
+                            </div>
+                            <div class="route-detail">
+                                <i class="fas fa-dollar-sign"></i>
+                                <span>$2.50 toll</span>
+                            </div>
+                        </div>
+                        <div class="route-traffic">
+                            <div class="traffic-indicator" style="background-color: var(--traffic-moderate);"></div>
+                            <span>Moderate traffic</span>
+                        </div>
+                    </div>
+                    <div class="route-option">
+                        <div class="route-header">
+                            <div class="route-name">Eco-Friendly Route</div>
+                            <div class="route-time">32 min</div>
+                        </div>
+                        <div class="route-details">
+                            <div class="route-detail">
+                                <i class="fas fa-road"></i>
+                                <span>12.8 miles</span>
+                            </div>
+                            <div class="route-detail">
+                                <i class="fas fa-leaf"></i>
+                                <span>Less emissions</span>
+                            </div>
+                            <div class="route-detail">
+                                <i class="fas fa-star"></i>
+                                <span>+10 Eco Points</span>
+                            </div>
+                        </div>
+                        <div class="route-traffic">
+                            <div class="traffic-indicator" style="background-color: var(--traffic-free);"></div>
+                            <span>Free flow</span>
+                        </div>
+                    </div>
+                    <div class="route-option">
+                        <div class="route-header">
+                            <div class="route-name">Scenic Route</div>
+                            <div class="route-time">40 min</div>
+                        </div>
+                        <div class="route-details">
+                            <div class="route-detail">
+                                <i class="fas fa-road"></i>
+                                <span>18.5 miles</span>
+                            </div>
+                            <div class="route-detail">
+                                <i class="fas fa-mountain"></i>
+                                <span>Via National Park</span>
+                            </div>
+                            <div class="route-detail">
+                                <i class="fas fa-camera"></i>
+                                <span>Scenic views</span>
+                            </div>
+                        </div>
+                        <div class="route-traffic">
+                            <div class="traffic-indicator" style="background-color: var(--traffic-free);"></div>
+                            <span>Free flow</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Live Traffic Alerts</h2>
+                </div>
+                <div id="trafficAlerts">
+                    <div class="alert-item">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-exclamation-triangle text-warning mr-3"></i>
+                            <div>
+                                <h4>Accident on I-95 North</h4>
+                                <p>Expect 20 min delays. Consider alternative routes.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="alert-item mt-3">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-road text-danger mr-3"></i>
+                            <div>
+                                <h4>Route 1 Closure</h4>
+                                <p>Closed for construction until 5 PM. Use detour via Route 2.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Emergency SOS</h2>
+                </div>
+                <p>In case of emergency, press the SOS button to notify authorities.</p>
+                <div class="text-center mt-4">
+                    <button class="btn btn-sos" id="sosButton">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>EMERGENCY SOS</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Eco Rewards Page -->
+        <section id="eco-rewards" class="page-section">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Eco Points & Rewards</h2>
+                </div>
+                <p>Earn points for eco-friendly travel and redeem exciting rewards.</p>
+            </div>
+
+            <div class="eco-card">
+                <h3>Your Eco Points</h3>
+                <div class="eco-points">1,250</div>
+                <div class="eco-level">
+                    <i class="fas fa-leaf"></i>
+                    <span>Eco Champion</span>
+                </div>
+                <div class="eco-progress">
+                    <div class="eco-progress-bar"></div>
+                </div>
+                <p>250 points to next level</p>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">How to Earn Points</h2>
+                </div>
+                <div class="d-flex flex-column">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-route text-success mr-3"></i>
+                        <div>
+                            <h4>Take Eco Routes</h4>
+                            <p>Earn 10 points for every eco-friendly route</p>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-bus text-success mr-3"></i>
+                        <div>
+                            <h4>Use Public Transport</h4>
+                            <p>Earn 15 points for every public transport trip</p>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-users text-success mr-3"></i>
+                        <div>
+                            <h4>Participate in Ride Sharing</h4>
+                            <p>Earn 20 points for every shared ride</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Leaderboard</h2>
+                </div>
+                <div class="data-table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>User</th>
+                                <th>Points</th>
+                                <th>Level</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>John Doe</td>
+                                <td>3,450</td>
+                                <td>Eco Master</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>Jane Smith</td>
+                                <td>2,890</td>
+                                <td>Eco Expert</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>Mike Johnson</td>
+                                <td>2,560</td>
+                                <td>Eco Champion</td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>You</td>
+                                <td>1,250</td>
+                                <td>Eco Champion</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Available Rewards</h2>
+                </div>
+                <div class="rewards-grid">
+                    <div class="reward-card">
+                        <div class="reward-image">
+                            <i class="fas fa-coffee fa-3x"></i>
+                        </div>
+                        <div class="reward-content">
+                            <h3 class="reward-title">Free Coffee</h3>
+                            <p>Redeem at any partner cafe</p>
+                            <div class="reward-points">500 points</div>
+                        </div>
+                    </div>
+                    <div class="reward-card">
+                        <div class="reward-image">
+                            <i class="fas fa-gas-pump fa-3x"></i>
+                        </div>
+                        <div class="reward-content">
+                            <h3 class="reward-title">Fuel Discount</h3>
+                            <p>10% off at gas stations</p>
+                            <div class="reward-points">750 points</div>
+                        </div>
+                    </div>
+                    <div class="reward-card">
+                        <div class="reward-image">
+                            <i class="fas fa-car-wash fa-3x"></i>
+                        </div>
+                        <div class="reward-content">
+                            <h3 class="reward-title">Free Car Wash</h3>
+                            <p>At any partner location</p>
+                            <div class="reward-points">300 points</div>
+                        </div>
+                    </div>
+                    <div class="reward-card">
+                        <div class="reward-image">
+                            <i class="fas fa-shopping-bag fa-3x"></i>
+                        </div>
+                        <div class="reward-content">
+                            <h3 class="reward-title">Shopping Voucher</h3>
+                            <p>$20 at partner stores</p>
+                            <div class="reward-points">1,000 points</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Feedback Page -->
+        <section id="feedback" class="page-section">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Submit Feedback</h2>
+                </div>
+                <p>Help us improve by sharing your experience and suggestions.</p>
+            </div>
+
+            <div class="card">
+                <form id="feedbackForm">
+                    <div class="form-group">
+                        <label class="form-label" for="feedbackType">Feedback Type</label>
+                        <select class="form-select" id="feedbackType" required>
+                            <option value="">Select Type</option>
+                            <option value="compliment">Compliment</option>
+                            <option value="complaint">Complaint</option>
+                            <option value="suggestion">Suggestion</option>
+                            <option value="bug">Bug Report</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="feedbackRating">Rating</label>
+                        <div class="rating" id="feedbackRating">
+                            <i class="far fa-star" data-rating="1"></i>
+                            <i class="far fa-star" data-rating="2"></i>
+                            <i class="far fa-star" data-rating="3"></i>
+                            <i class="far fa-star" data-rating="4"></i>
+                            <i class="far fa-star" data-rating="5"></i>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="feedbackMessage">Your Feedback</label>
+                        <textarea class="form-textarea" id="feedbackMessage" rows="5"
+                            placeholder="Share your experience..." required></textarea>
+                    </div>
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i>
+                            <span>Submit Feedback</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Recent Feedback</h2>
+                </div>
+                <div id="feedbackList">
+                    <div class="feedback-item">
+                        <div class="feedback-header">
+                            <div class="feedback-user">
+                                <div class="user-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div>
+                                    <h4>John Doe</h4>
+                                    <div class="feedback-rating">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="feedback-date">2 days ago</div>
+                        </div>
+                        <div class="feedback-content">
+                            <p>The route finder is incredibly accurate! It saved me 30 minutes on my daily commute.</p>
+                        </div>
+                        <div class="feedback-actions">
+                            <div class="feedback-action">
+                                <i class="fas fa-thumbs-up"></i>
+                                <span>24</span>
+                            </div>
+                            <div class="feedback-action">
+                                <i class="fas fa-comment"></i>
+                                <span>Reply</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="feedback-item">
+                        <div class="feedback-header">
+                            <div class="feedback-user">
+                                <div class="user-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div>
+                                    <h4>Jane Smith</h4>
+                                    <div class="feedback-rating">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="far fa-star"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="feedback-date">5 days ago</div>
+                        </div>
+                        <div class="feedback-content">
+                            <p>Great app overall, but the public transport tracking could be more accurate. Sometimes it
+                                shows buses that are already out of service.</p>
+                        </div>
+                        <div class="feedback-actions">
+                            <div class="feedback-action">
+                                <i class="fas fa-thumbs-up"></i>
+                                <span>12</span>
+                            </div>
+                            <div class="feedback-action">
+                                <i class="fas fa-comment"></i>
+                                <span>Reply</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Admin Panel Page -->
+        <section id="admin-panel" class="page-section">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Admin Panel</h2>
+                </div>
+                <p>Monitor and manage traffic for government officials.</p>
+            </div>
+
+            <div class="admin-stats">
+                <div class="stat-card">
+                    <i class="fas fa-traffic-light fa-2x mb-3"></i>
+                    <div class="stat-value">1,245</div>
+                    <div class="stat-label">Active Trips</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-route fa-2x mb-3"></i>
+                    <div class="stat-value">42</div>
+                    <div class="stat-label">Traffic Incidents</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-bus fa-2x mb-3"></i>
+                    <div class="stat-value">356</div>
+                    <div class="stat-label">Public Vehicles</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                    <div class="stat-value">7</div>
+                    <div class="stat-label">SOS Alerts</div>
+                </div>
+            </div>
+
+            <div class="tabs">
+                <div class="tab active" data-tab="trip-approvals">Trip Approvals</div>
+                <div class="tab" data-tab="heavy-vehicles">Heavy Vehicles</div>
+                <div class="tab" data-tab="traffic-analysis">Traffic Analysis</div>
+                <div class="tab" data-tab="sos-alerts">SOS Alerts</div>
+            </div>
+
+            <div class="tab-content active" id="trip-approvals">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Pending Trip Approvals</h2>
+                    </div>
+                    <div class="data-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Trip ID</th>
+                                    <th>Vehicle</th>
+                                    <th>Route</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>TRP789458</td>
+                                    <td>Truck (TX-1234)</td>
+                                    <td>California → Texas</td>
+                                    <td>2023-06-18</td>
+                                    <td><span class="status-badge status-pending">Pending</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-success">Approve</button>
+                                        <button class="btn btn-sm btn-danger">Reject</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>TRP789459</td>
+                                    <td>Bus (NY-5678)</td>
+                                    <td>New York → Florida</td>
+                                    <td>2023-06-19</td>
+                                    <td><span class="status-badge status-pending">Pending</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-success">Approve</button>
+                                        <button class="btn btn-sm btn-danger">Reject</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>TRP789460</td>
+                                    <td>Van (CA-9012)</td>
+                                    <td>California → Arizona</td>
+                                    <td>2023-06-20</td>
+                                    <td><span class="status-badge status-pending">Pending</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-success">Approve</button>
+                                        <button class="btn btn-sm btn-danger">Reject</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="heavy-vehicles">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Heavy Vehicles Monitoring</h2>
+                    </div>
+                    <div class="data-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Vehicle ID</th>
+                                    <th>Type</th>
+                                    <th>Current Location</th>
+                                    <th>Route</th>
+                                    <th>Speed</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>TRK001</td>
+                                    <td>Truck</td>
+                                    <td>I-95, Mile 45</td>
+                                    <td>Boston → Washington</td>
+                                    <td>55 mph</td>
+                                    <td><span class="status-badge status-approved">Active</span></td>
+                                </tr>
+                                <tr>
+                                    <td>TRK002</td>
+                                    <td>Truck</td>
+                                    <td>I-10, Mile 120</td>
+                                    <td>Los Angeles → Phoenix</td>
+                                    <td>65 mph</td>
+                                    <td><span class="status-badge status-approved">Active</span></td>
+                                </tr>
+                                <tr>
+                                    <td>TRK003</td>
+                                    <td>Truck</td>
+                                    <td>I-80, Mile 75</td>
+                                    <td>Chicago → New York</td>
+                                    <td>60 mph</td>
+                                    <td><span class="status-badge status-approved">Active</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="traffic-analysis">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Traffic Analysis</h2>
+                    </div>
+                    <div class="map-container">
+                        <div class="map-placeholder">
+                            <div>
+                                <i class="fas fa-chart-line fa-3x mb-3"></i>
+                                <p>Traffic Flow Analysis</p>
+                                <p class="text-secondary">Real-time traffic data visualization</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h2 class="card-title">Traffic Statistics</h2>
+                    </div>
+                    <div class="d-flex flex-column">
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Average Traffic Speed:</span>
+                            <span>42 mph</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Congested Roads:</span>
+                            <span>12%</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Traffic Incidents Today:</span>
+                            <span>8</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Average Commute Time:</span>
+                            <span>35 min</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="sos-alerts">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Active SOS Alerts</h2>
+                    </div>
+                    <div id="sosAlerts">
+                        <div class="alert-item">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-exclamation-circle text-danger mr-3"></i>
+                                <div class="w-100">
+                                    <h4>Accident on I-95 North</h4>
+                                    <p>Vehicle: TRK003 | Location: I-95, Mile 45 | Time: 10:45 AM</p>
+                                    <div class="btn-group mt-2">
+                                        <button class="btn btn-sm btn-primary">Dispatch Police</button>
+                                        <button class="btn btn-sm btn-primary">Dispatch Ambulance</button>
+                                        <button class="btn btn-sm btn-success">Mark Resolved</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="alert-item mt-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-exclamation-circle text-danger mr-3"></i>
+                                <div class="w-100">
+                                    <h4>Vehicle Breakdown</h4>
+                                    <p>Vehicle: CAR456 | Location: Route 1, Mile 23 | Time: 11:15 AM</p>
+                                    <div class="btn-group mt-2">
+                                        <button class="btn btn-sm btn-primary">Dispatch Tow Truck</button>
+                                        <button class="btn btn-sm btn-success">Mark Resolved</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Login / Register</h3>
+                <button class="modal-close" id="closeLoginModal" type="button"> LOgin / SignUp
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="tabs">
+                    <div class="tab active" data-tab="login-tab">Login</div>
+                    <div class="tab" data-tab="register-tab">Register</div>
+                </div>
+                <div class="tab-content active" id="login-tab">
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label class="form-label" for="loginEmail">Email</label>
+                            <input type="email" class="form-input" id="loginEmail" placeholder="Enter your email"
+                                required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="loginPassword">Password</label>
+                            <input type="password" class="form-input" id="loginPassword"
+                                placeholder="Enter your password" required>
+                        </div>
+                        <div class="btn-group">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-sign-in-alt"></i>
+                                <span>Login</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="tab-content" id="register-tab">
+                    <form id="registerForm">
+                        <div class="form-group">
+                            <label class="form-label" for="registerName">Full Name</label>
+                            <input type="text" class="form-input" id="registerName" placeholder="Enter your full name"
+                                required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="registerEmail">Email</label>
+                            <input type="email" class="form-input" id="registerEmail" placeholder="Enter your email"
+                                required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="registerPassword">Password</label>
+                            <input type="password" class="form-input" id="registerPassword"
+                                placeholder="Enter your password" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="registerConfirmPassword">Confirm Password</label>
+                            <input type="password" class="form-input" id="registerConfirmPassword"
+                                placeholder="Confirm your password" required>
+                        </div>
+                        <div class="btn-group">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-user-plus"></i>
+                                <span>Register</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chatbot -->
+    <div class="chatbot-toggle" id="chatbotToggle">
+        <i class="fas fa-comments"></i>
+    </div>
+    <div class="chatbot-container" id="chatbotContainer">
+        <div class="chatbot-header">
+            <h3>Traffic Assistant</h3>
+            <button id="closeChatbot" type="button"> Traffic Assistant
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="chatbot-messages" id="chatbotMessages">
+            <div class="chatbot-message bot">
+                Hello! I'm your AI traffic assistant. How can I help you today?
+            </div>
+        </div>
+        <div class="chatbot-input">
+            <input type="text" id="chatbotInput" placeholder="Type your message...">
+            <button id="sendMessage" type="button"> ChatBox
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification">
+        <div class="notification-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="notification-message">
+            <p>Operation completed successfully!</p>
+        </div>
+        <button class="notification-close" type="button"> successfully
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <!-- Scripts -->
+    <!-- <script src="js/api.js"></script>
+    <script src="js/ui.js"></script>
+    ...
+    <script src="js/main.js"></script>
+    <script src="js/distance.js"></script> -->
+    ...
+
+    <!--It's JavaScript Documentry-->
+
+    <script>
+        // DOM Elements
+        const navLinks = document.querySelectorAll('.nav-link');
+        const pageSections = document.querySelectorAll('.page-section');
+        const loginBtn = document.getElementById('loginBtn');
+        const loginModal = document.getElementById('loginModal');
+        const closeLoginModal = document.getElementById('closeLoginModal');
+        const userAvatar = document.getElementById('userAvatar');
+        const chatbotToggle = document.getElementById('chatbotToggle');
+        const chatbotContainer = document.getElementById('chatbotContainer');
+        const closeChatbot = document.getElementById('closeChatbot');
+        const chatbotInput = document.getElementById('chatbotInput');
+        const sendMessage = document.getElementById('sendMessage');
+        const notification = document.getElementById('notification');
+        const notificationClose = document.querySelector('.notification-close');
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check authentication status
+            checkAuthStatus();
+
+            // Set today's date as default for trip date
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('tripDate').value = today;
+
+            // Load initial data
+            loadFeedback();
+            loadLeaderboard();
+
+            // If user is admin, load admin data
+            if (currentUser && currentUser.role === 'admin') {
+                loadPendingTrips();
+                loadSOSAlerts();
+            }
+        });
+
+        // Navigation
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetPage = link.getAttribute('data-page');
+                showPage(targetPage);
+
+                // Update active nav link
+                navLinks.forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+
+                // Load page-specific data
+                if (targetPage === 'register-trip') {
+                    loadUserTrips();
+                } else if (targetPage === 'feedback') {
+                    loadFeedback();
+                } else if (targetPage === 'eco-rewards') {
+                    loadLeaderboard();
+                } else if (targetPage === 'admin-panel' && currentUser && currentUser.role === 'admin') {
+                    loadPendingTrips();
+                    loadSOSAlerts();
+                }
+            });
+        });
+
+        // Feature Cards
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const targetPage = card.getAttribute('data-page');
+                showPage(targetPage);
+
+                // Update active nav link
+                navLinks.forEach(l => l.classList.remove('active'));
+                document.querySelector(`[data-page="${targetPage}"]`).classList.add('active');
+
+                // Load page-specific data
+                if (targetPage === 'register-trip') {
+                    loadUserTrips();
+                } else if (targetPage === 'feedback') {
+                    loadFeedback();
+                } else if (targetPage === 'eco-rewards') {
+                    loadLeaderboard();
+                } else if (targetPage === 'admin-panel' && currentUser && currentUser.role === 'admin') {
+                    loadPendingTrips();
+                    loadSOSAlerts();
+                }
+            });
+        });
+
+        // Login Modal
+        loginBtn.addEventListener('click', () => {
+            loginModal.classList.add('active');
+        });
+
+        closeLoginModal.addEventListener('click', () => {
+            loginModal.classList.remove('active');
+        });
+
+        // Login/Register Tabs
+        document.querySelectorAll('#loginModal .tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.getAttribute('data-tab');
+
+                // Update active tab
+                document.querySelectorAll('#loginModal .tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                // Show corresponding content
+                document.querySelectorAll('#loginModal .tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        // Login Form
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            const result = await loginUser({ email, password });
+
+            if (result.success) {
+                loginModal.classList.remove('active');
+                updateUserUI(result.data.user);
+                showNotification('success', 'Login successful! Welcome back.');
+            } else {
+                showNotification('error', result.error);
+            }
+        });
+
+        // Register Form
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+
+            if (password !== confirmPassword) {
+                showNotification('error', 'Passwords do not match');
+                return;
+            }
+
+            const result = await registerUser({ name, email, password });
+
+            if (result.success) {
+                loginModal.classList.remove('active');
+                updateUserUI(result.data.user);
+                showNotification('success', 'Registration successful! Welcome to AI Traffic Management.');
+            } else {
+                showNotification('error', result.error);
+            }
+        });
+
+        // Trip Form
+        document.getElementById('tripForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const tripData = {
+                originState: document.getElementById('originState').value,
+                originDistrict: document.getElementById('originDistrict').value,
+                originPlace: document.getElementById('originPlace').value,
+                destState: document.getElementById('destState').value,
+                destDistrict: document.getElementById('destDistrict').value,
+                destPlace: document.getElementById('destPlace').value,
+                vehicleType: document.getElementById('vehicleType').value,
+                vehicleNumber: document.getElementById('vehicleNumber').value,
+                tripDate: document.getElementById('tripDate').value,
+                purpose: document.getElementById('purpose').value
+            };
+
+            const result = await createTrip(tripData);
+
+            if (result.success) {
+                showNotification('success', `Trip registered successfully! Your Trip ID is ${result.data.trip_id}.`);
+                document.getElementById('tripForm').reset();
+                loadUserTrips();
+            } else {
+                showNotification('error', result.error);
+            }
+        });
+
+        // Reset Trip Form
+        document.getElementById('resetTripForm').addEventListener('click', () => {
+            document.getElementById('tripForm').reset();
+        });
+
+        // Load user trips
+        async function loadUserTrips() {
+            const result = await getUserTrips();
+
+            if (result.success) {
+                displayTrips(result.data);
+            }
+        }
+
+        // Feedback Form
+        document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const rating = document.querySelector('#feedbackRating .fas')?.length || 0;
+
+            const feedbackData = {
+                type: document.getElementById('feedbackType').value,
+                rating: rating,
+                message: document.getElementById('feedbackMessage').value
+            };
+
+            const result = await submitFeedback(feedbackData);
+
+            if (result.success) {
+                showNotification('success', 'Feedback submitted successfully! Thank you for your input.');
+                document.getElementById('feedbackForm').reset();
+                document.querySelectorAll('#feedbackRating i').forEach(star => {
+                    star.classList.remove('fas');
+                    star.classList.add('far');
+                });
+                loadFeedback();
+            } else {
+                showNotification('error', result.error);
+            }
+        });
+
+        // Feedback Rating
+        document.querySelectorAll('#feedbackRating i').forEach(star => {
+            star.addEventListener('click', () => {
+                const rating = parseInt(star.getAttribute('data-rating'));
+
+                // Update stars
+                document.querySelectorAll('#feedbackRating i').forEach((s, index) => {
+                    if (index < rating) {
+                        s.classList.remove('far');
+                        s.classList.add('fas');
+                    } else {
+                        s.classList.remove('fas');
+                        s.classList.add('far');
+                    }
+                });
+            });
+        });
+
+        // Load feedback
+        async function loadFeedback() {
+            const result = await getFeedback();
+
+            if (result.success) {
+                displayFeedback(result.data);
+            }
+        }
+
+        // SOS button
+        document.getElementById('sosButton').addEventListener('click', async () => {
+            const result = await sendSOSAlert({
+                location: 'Current Location',
+                message: 'Emergency assistance needed'
+            });
+
+            if (result.success) {
+                showNotification('error', 'Emergency alert sent! Authorities have been notified of your location.');
+            } else {
+                showNotification('error', result.error);
+            }
+        });
+
+        // Route Form
+        document.getElementById('routeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const routeData = {
+                origin: document.getElementById('routeOrigin').value,
+                destination: document.getElementById('routeDestination').value,
+                vehicleType: document.getElementById('routeVehicle').value
+            };
+
+            const result = await findRoutes(routeData);
+
+            if (result.success) {
+                displayRoutes(result.data);
+                showNotification('success', 'Routes found successfully! Check the available routes below.');
+            } else {
+                showNotification('error', result.error);
+            }
+        });
+
+        // Public transport tracking
+        document.getElementById('trackBuses').addEventListener('click', async () => {
+            const city = document.getElementById('citySelect').value;
+            if (city === '') {
+                showNotification('warning', 'Please select a city first.');
+                return;
+            }
+
+            const result = await trackPublicTransport(city);
+
+            if (result.success) {
+                displayPublicTransport(result.data);
+                showNotification('success', `Tracking buses in ${city.charAt(0).toUpperCase() + city.slice(1)}.`);
+            } else {
+                showNotification('error', result.error);
+            }
+        });
+
+        // Load leaderboard
+        async function loadLeaderboard() {
+            const result = await getLeaderboard();
+
+            if (result.success) {
+                displayLeaderboard(result.data);
+            }
+        }
+
+        // Admin Panel Tabs
+        document.querySelectorAll('#admin-panel .tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.getAttribute('data-tab');
+
+                // Update active tab
+                document.querySelectorAll('#admin-panel .tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                // Show corresponding content
+                document.querySelectorAll('#admin-panel .tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        // Admin panel functions
+        async function loadPendingTrips() {
+            const result = await getPendingTrips();
+
+            if (result.success) {
+                displayPendingTrips(result.data);
+            }
+        }
+
+        // Approve trip
+        async function approveTrip(tripId) {
+            const result = await updateTripStatus(tripId, 'approved');
+
+            if (result.success) {
+                showNotification('success', 'Trip approved successfully');
+                loadPendingTrips();
+            } else {
+                showNotification('error', result.error);
+            }
+        }
+
+        // Reject trip
+        async function rejectTrip(tripId) {
+            const result = await updateTripStatus(tripId, 'rejected');
+
+            if (result.success) {
+                showNotification('success', 'Trip rejected successfully');
+                loadPendingTrips();
+            } else {
+                showNotification('error', result.error);
+            }
+        }
+
+        // Load SOS alerts for admin
+        async function loadSOSAlerts() {
+            const result = await getSOSAlerts();
+
+            if (result.success) {
+                displaySOSAlerts(result.data);
+            }
+        }
+
+        // Resolve SOS alert
+        async function resolveSOS(alertId) {
+            const result = await updateSOSStatus(alertId, 'resolved');
+
+            if (result.success) {
+                showNotification('success', 'SOS alert marked as resolved');
+                loadSOSAlerts();
+            } else {
+                showNotification('error', result.error);
+            }
+        }
+
+        // Chatbot
+        chatbotToggle.addEventListener('click', () => {
+            chatbotContainer.classList.add('active');
+        });
+
+        closeChatbot.addEventListener('click', () => {
+            chatbotContainer.classList.remove('active');
+        });
+
+        sendMessage.addEventListener('click', sendChatMessage);
+        chatbotInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendChatMessage();
+            }
+        });
+
+        // Notification
+        notificationClose.addEventListener('click', () => {
+            notification.classList.remove('show');
+        });
+
+        // Placeholder functions for trip actions
+        function viewTripDetails(tripId) {
+            showNotification('success', `Viewing details for trip ${tripId}`);
+        }
+
+        function editTrip(tripId) {
+            showNotification('success', `Editing trip ${tripId}`);
+        }
+
+        function cancelTrip(tripId) {
+            showNotification('warning', `Canceling trip ${tripId}`);
+        }
+
+
+        // Update UI based on user
+        function updateUserUI(user) {
+            document.getElementById('loginBtn').style.display = 'none';
+            document.getElementById('userAvatar').style.display = 'flex';
+
+            // Update eco points if on eco-rewards page
+            if (document.getElementById('eco-rewards').classList.contains('active')) {
+                document.querySelector('.eco-points').textContent = user.eco_points;
+            }
+        }
+
+        // Show notification
+        function showNotification(type, message) {
+            const notificationEl = document.getElementById('notification');
+            const icon = notificationEl.querySelector('.notification-icon i');
+            const messageEl = notificationEl.querySelector('.notification-message p');
+
+            // Update notification
+            notificationEl.className = 'notification';
+            notificationEl.classList.add(type);
+
+            // Update icon
+            icon.className = 'fas';
+
+            if (type === 'success') {
+                icon.classList.add('fa-check-circle');
+            } else if (type === 'warning') {
+                icon.classList.add('fa-exclamation-triangle');
+            } else if (type === 'error') {
+                icon.classList.add('fa-times-circle');
+            }
+
+            // Update message
+            messageEl.textContent = message;
+
+            // Show notification
+            notificationEl.classList.add('show');
+
+            // Hide after 5 seconds
+            setTimeout(() => {
+                notificationEl.classList.remove('show');
+            }, 5000);
+        }
+
+        // Display trips in UI
+        function displayTrips(trips) {
+            const tripsList = document.getElementById('tripsList');
+            tripsList.innerHTML = '';
+
+            if (trips.length === 0) {
+                tripsList.innerHTML = '<p>No trips found</p>';
+                return;
+            }
+
+            trips.forEach(trip => {
+                const tripCard = document.createElement('div');
+                tripCard.className = 'trip-card';
+
+                tripCard.innerHTML = `
+            <div class="trip-info">
+                <h3>Trip ID: ${trip.trip_id}</h3>
+                <p>${trip.origin_state}, ${trip.origin_district} → ${trip.dest_state}, ${trip.dest_district}</p>
+                <p>Vehicle: ${trip.vehicle_type} | Date: ${new Date(trip.trip_date).toLocaleDateString()}</p>
+                <p>Status: <span class="status-badge status-${trip.status}">${trip.status}</span></p>
+            </div>
+            <div class="trip-actions">
+                <button title="View Details" onclick="viewTripDetails('${trip.id}')">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <button title="Edit Trip" onclick="editTrip('${trip.id}')">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button title="Cancel Trip" onclick="cancelTrip('${trip.id}')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+
+                tripsList.appendChild(tripCard);
+            });
+        }
+
+        // Display feedback in UI
+        function displayFeedback(feedbackList) {
+            const feedbackContainer = document.getElementById('feedbackList');
+            feedbackContainer.innerHTML = '';
+
+            if (feedbackList.length === 0) {
+                feedbackContainer.innerHTML = '<p>No feedback found</p>';
+                return;
+            }
+
+            feedbackList.forEach(feedback => {
+                const feedbackItem = document.createElement('div');
+                feedbackItem.className = 'feedback-item';
+
+                const stars = Array(5).fill(0).map((_, i) =>
+                    i < feedback.rating ? '<i class="fas fa-star"></i>' : '<i class="far fa-star"></i>'
+                ).join('');
+
+                feedbackItem.innerHTML = `
+            <div class="feedback-header">
+                <div class="feedback-user">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <h4>${feedback.user.name}</h4>
+                        <div class="feedback-rating">
+                            ${stars}
+                        </div>
+                    </div>
+                </div>
+                <div class="feedback-date">${new Date(feedback.created_at).toLocaleDateString()}</div>
+            </div>
+            <div class="feedback-content">
+                <p>${feedback.message}</p>
+            </div>
+            <div class="feedback-actions">
+                <div class="feedback-action">
+                    <i class="fas fa-thumbs-up"></i>
+                    <span>24</span>
+                </div>
+                <div class="feedback-action">
+                    <i class="fas fa-comment"></i>
+                    <span>Reply</span>
+                </div>
+            </div>
+        `;
+
+                feedbackContainer.appendChild(feedbackItem);
+            });
+        }
+
+        // Display routes in UI
+        function displayRoutes(routes) {
+            const routesList = document.getElementById('routesList');
+            routesList.innerHTML = '';
+
+            routes.forEach(route => {
+                const routeOption = document.createElement('div');
+                routeOption.className = 'route-option';
+
+                let trafficColor = 'var(--traffic-free)';
+                if (route.traffic === 'moderate') trafficColor = 'var(--traffic-moderate)';
+                if (route.traffic === 'heavy') trafficColor = 'var(--traffic-heavy)';
+                if (route.traffic === 'gridlock') trafficColor = 'var(--traffic-gridlock)';
+
+                routeOption.innerHTML = `
+            <div class="route-header">
+                <div class="route-name">${route.name}</div>
+                <div class="route-time">${route.time}</div>
+            </div>
+            <div class="route-details">
+                <div class="route-detail">
+                    <i class="fas fa-road"></i>
+                    <span>${route.distance}</span>
+                </div>
+                <div class="route-detail">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Via ${route.via}</span>
+                </div>
+                <div class="route-detail">
+                    <i class="fas fa-dollar-sign"></i>
+                    <span>${route.toll}</span>
+                </div>
+            </div>
+            <div class="route-traffic">
+                <div class="traffic-indicator" style="background-color: ${trafficColor};"></div>
+                <span>${route.traffic.charAt(0).toUpperCase() + route.traffic.slice(1)} traffic</span>
+            </div>
+        `;
+
+                routesList.appendChild(routeOption);
+            });
+        }
+
+        // Display public transport in UI
+        function displayPublicTransport(vehicles) {
+            const tableBody = document.querySelector('#tracking .data-table tbody');
+            tableBody.innerHTML = '';
+
+            vehicles.forEach(vehicle => {
+                const row = document.createElement('tr');
+
+                let statusClass = 'status-approved';
+                if (vehicle.status === 'Delayed') statusClass = 'status-warning';
+
+                row.innerHTML = `
+            <td>${vehicle.id}</td>
+            <td>${vehicle.type}</td>
+            <td>${vehicle.route}</td>
+            <td><span class="status-badge ${statusClass}">${vehicle.status}</span></td>
+            <td>${vehicle.eta}</td>
+            <td>
+                <button class="btn btn-sm btn-primary">Track</button>
+            </td>
+        `;
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Display leaderboard in UI
+        function displayLeaderboard(users) {
+            const tableBody = document.querySelector('#eco-rewards .data-table tbody');
+            tableBody.innerHTML = '';
+
+            users.forEach((user, index) => {
+                const row = document.createElement('tr');
+
+                row.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${user.name}</td>
+            <td>${user.eco_points}</td>
+            <td>Eco Champion</td>
+        `;
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Display pending trips in admin panel
+        function displayPendingTrips(trips) {
+            const tableBody = document.querySelector('#trip-approvals .data-table tbody');
+            tableBody.innerHTML = '';
+
+            trips.forEach(trip => {
+                const row = document.createElement('tr');
+
+                row.innerHTML = `
+            <td>${trip.trip_id}</td>
+            <td>${trip.vehicle_type} (${trip.vehicle_number})</td>
+            <td>${trip.origin_state} → ${trip.dest_state}</td>
+            <td>${new Date(trip.trip_date).toLocaleDateString()}</td>
+            <td><span class="status-badge status-pending">${trip.status}</span></td>
+            <td>
+                <button class="btn btn-sm btn-success" onclick="approveTrip('${trip.id}')">Approve</button>
+                <button class="btn btn-sm btn-danger" onclick="rejectTrip('${trip.id}')">Reject</button>
+            </td>
+        `;
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Display SOS alerts in admin panel
+        function displaySOSAlerts(alerts) {
+            const alertsContainer = document.getElementById('sosAlerts');
+            alertsContainer.innerHTML = '';
+
+            alerts.forEach(alert => {
+                const alertItem = document.createElement('div');
+                alertItem.className = 'alert-item mt-3';
+
+                alertItem.innerHTML = `
+            <div class="d-flex align-items-center">
+                <i class="fas fa-exclamation-circle text-danger mr-3"></i>
+                <div class="w-100">
+                    <h4>${alert.message}</h4>
+                    <p>User: ${alert.user.name} (${alert.user.email}) | Location: ${alert.location} | Time: ${new Date(alert.created_at).toLocaleString()}</p>
+                    <div class="btn-group mt-2">
+                        <button class="btn btn-sm btn-primary">Dispatch Police</button>
+                        <button class="btn btn-sm btn-primary">Dispatch Ambulance</button>
+                        <button class="btn btn-sm btn-success" onclick="resolveSOS('${alert.id}')">Mark Resolved</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+                alertsContainer.appendChild(alertItem);
+            });
+        }
+
+        // Show page
+        function showPage(pageId) {
+            const pageSections = document.querySelectorAll('.page-section');
+            pageSections.forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        // Send chat message
+        function sendChatMessage() {
+            const chatbotInput = document.getElementById('chatbotInput');
+            const chatbotMessages = document.getElementById('chatbotMessages');
+            const message = chatbotInput.value.trim();
+
+            if (message === '') return;
+
+            // Add user message
+            const userMessage = document.createElement('div');
+            userMessage.classList.add('chatbot-message', 'user');
+            userMessage.textContent = message;
+            chatbotMessages.appendChild(userMessage);
+
+            // Clear input
+            chatbotInput.value = '';
+
+            // Simulate bot response
+            setTimeout(() => {
+                const botMessage = document.createElement('div');
+                botMessage.classList.add('chatbot-message', 'bot');
+
+                // Simple responses based on keywords
+                if (message.toLowerCase().includes('route') || message.toLowerCase().includes('direction')) {
+                    botMessage.textContent = 'I can help you find the best route! Please use the Route Finder feature on our website.';
+                } else if (message.toLowerCase().includes('traffic')) {
+                    botMessage.textContent = 'For the latest traffic updates, please check our Live Traffic Map on the home page.';
+                } else if (message.toLowerCase().includes('sos') || message.toLowerCase().includes('emergency')) {
+                    botMessage.textContent = 'In case of emergency, please use the SOS button on the Route Finder page. This will immediately notify the authorities.';
+                } else if (message.toLowerCase().includes('permit') || message.toLowerCase().includes('trip')) {
+                    botMessage.textContent = 'You can register your trip and get permits on the Register Trip page. Fill in the details and submit the form.';
+                } else if (message.toLowerCase().includes('reward') || message.toLowerCase().includes('point')) {
+                    botMessage.textContent = 'You can earn Eco Points by taking eco-friendly routes, using public transport, or participating in ride sharing. Check the Eco Rewards page for more information.';
+                } else {
+                    botMessage.textContent = 'Thank you for your message. How else can I assist you with your traffic management needs?';
+                }
+
+                chatbotMessages.appendChild(botMessage);
+
+                // Scroll to bottom
+                chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+            }, 1000);
+
+            // Scroll to bottom
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+        }
+
+
+
+
+
+
+
+
+
+
+        // distance.js
+async function getDistance(origin, destination) {
+  const apiKey = "AYFTU8KJo9GSkwD7pjHMkS1Dv9B1j8n2UCbXg2nAsimSzwGzyoRQTWKZnRdSXh85";
+  const url = `https://api.distancematrix.ai/maps/api/distancematrix/json?origins=${origin}&destinations=${destination}&key=${apiKey}`;
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (data.status === "OK" && data.rows[0].elements[0].status === "OK") {
+      const element = data.rows[0].elements[0];
+      return {
+        distance: element.distance.text,
+        duration: element.duration.text,
+      };
+    } else {
+      console.error("API error:", data);
+      return null;
+    }
+  } catch (error) {
+    console.error("Fetch error:", error);
+    return null;
+  }
+}
+
+// Example usage:
+(async () => {
+  const origin = "51.4822656,-0.1933769"; // Chelsea, London
+  const destination = "51.4994794,-0.1269979"; // Westminster, London
+  const result = await getDistance(origin, destination);
+
+  if (result) {
+    console.log(`Distance: ${result.distance}, Duration: ${result.duration}`);
+    // Aap yahan apne UI me update kar sakte ho
+    document.getElementById("distanceResult").innerText =
+      `Distance: ${result.distance} | Duration: ${result.duration}`;
+  }
+})();
+
+
+
+
+
+
+
+
+
+// Update UI based on user
+function updateUserUI(user) {
+    document.getElementById('loginBtn').style.display = 'none';
+    document.getElementById('userAvatar').style.display = 'flex';
+}
+
+// Show notification
+function showNotification(message, type = 'info') {
+    const notificationEl = document.getElementById('notification');
+    const icon = notificationEl.querySelector('.notification-icon i');
+    const messageEl = notificationEl.querySelector('.notification-message p');
+    
+    // Update notification
+    notificationEl.className = `notification notification-${type}`;
+    
+    // Update icon
+    icon.className = 'fas';
+    
+    if (type === 'success') {
+        icon.classList.add('fa-check-circle');
+    } else if (type === 'warning') {
+        icon.classList.add('fa-exclamation-triangle');
+    } else if (type === 'error') {
+        icon.classList.add('fa-times-circle');
+    } else {
+        icon.classList.add('fa-info-circle');
+    }
+    
+    // Update message
+    messageEl.textContent = message;
+    
+    // Show notification
+    notificationEl.classList.add('show');
+    
+    // Hide after 5 seconds
+    setTimeout(() => {
+        notificationEl.classList.remove('show');
+    }, 5000);
+}
+
+// Display traffic incidents
+function displayTrafficIncidents(incidents) {
+    const incidentsList = document.getElementById('incidentsList');
+    incidentsList.innerHTML = '';
+    
+    if (incidents.length === 0) {
+        incidentsList.innerHTML = '<p>No incidents found</p>';
+        return;
+    }
+    
+    incidents.forEach(incident => {
+        const incidentItem = document.createElement('div');
+        incidentItem.className = 'incident-item';
+        
+        let incidentTypeClass = 'accident';
+        if (incident.type === 'construction') incidentTypeClass = 'construction';
+        if (incident.type === 'weather') incidentTypeClass = 'weather';
+        
+        incidentItem.innerHTML = `
+            <div class="incident-type ${incidentTypeClass}">
+                <i class="fas fa-${incidentType === 'accident' ? 'car-crash' : incidentType === 'construction' ? 'road' : 'cloud-rain'}"></i>
+            </div>
+            <div class="incident-details">
+                <h4>${incident.description}</h4>
+                <p>${incident.location}</p>
+                <span class="incident-time">${formatTime(incident.created_at)}</span>
+            </div>
+        `;
+        
+        incidentsList.appendChild(incidentItem);
+    });
+}
+
+// Display traffic alerts
+function displayTrafficAlerts(alerts) {
+    const alertsList = document.getElementById('alertsList');
+    alertsList.innerHTML = '';
+    
+    if (alerts.length === 0) {
+        alertsList.innerHTML = '<p>No alerts found</p>';
+        return;
+    }
+    
+    alerts.forEach(alert => {
+        const alertItem = document.createElement('div');
+        alertItem.className = `alert-item ${alert.severity}`;
+        
+        alertItem.innerHTML = `
+            <div class="alert-icon">
+                <i class="fas fa-${alert.severity === 'high' ? 'exclamation-circle' : alert.severity === 'medium' ? 'info-circle' : 'check-circle'}"></i>
+            </div>
+            <div class="alert-details">
+                <h4>${alert.title}</h4>
+                <p>${alert.message}</p>
+                <span class="alert-time">${formatTime(alert.created_at)}</span>
+            </div>
+        `;
+        
+        alertsList.appendChild(alertItem);
+    });
+}
+
+// Display routes
+function displayRoutes(routes) {
+    const routesList = document.getElementById('routesList');
+    routesList.innerHTML = '';
+    
+    if (routes.length === 0) {
+        routesList.innerHTML = '<p>No routes found</p>';
+        return;
+    }
+    
+    routes.forEach(route => {
+        const routeOption = document.createElement('div');
+        routeOption.className = 'route-option';
+        
+        let trafficColor = 'free';
+        if (route.traffic === 'moderate') trafficColor = 'moderate';
+        if (route.traffic === 'heavy') trafficColor = 'heavy';
+        
+        routeOption.innerHTML = `
+            <div class="route-header">
+                <div class="route-name">${route.name}</div>
+                <div class="route-time">${route.time}</div>
+            </div>
+            <div class="route-details">
+                <div class="route-detail">
+                    <i class="fas fa-road"></i>
+                    <span>${route.distance}</span>
+                </div>
+                <div class="route-detail">
+                    <i class="fas fa-${route.via.includes('Highway') ? 'tachometer-alt' : route.via.includes('Local') ? 'leaf' : 'mountain'}"></i>
+                    <span>Via ${route.via}</span>
+                </div>
+                <div class="route-detail">
+                    <i class="fas fa-dollar-sign"></i>
+                    <span>${route.toll}</span>
+                </div>
+            </div>
+            <div class="route-traffic">
+                <div class="traffic-indicator ${trafficColor}"></div>
+                <span>${route.traffic.charAt(0).toUpperCase() + route.traffic.slice(1)} traffic</span>
+            </div>
+        `;
+        
+        routesList.appendChild(routeOption);
+    });
+}
+
+// Display public transport
+function displayPublicTransport(vehicles) {
+    const transportList = document.getElementById('transportList');
+    transportList.innerHTML = '';
+    
+    if (vehicles.length === 0) {
+        transportList.innerHTML = '<p>No public transport found</p>';
+        return;
+    }
+    
+    vehicles.forEach(vehicle => {
+        const transportItem = document.createElement('div');
+        transportItem.className = 'transport-item';
+        
+        let transportIconClass = 'bus';
+        let statusBadgeClass = 'on-time';
+        
+        if (vehicle.type === 'Train') {
+            transportIconClass = 'train';
+        }
+        
+        if (vehicle.status === 'Delayed') {
+            statusBadgeClass = 'delayed';
+        }
+        
+        transportItem.innerHTML = `
+            <div class="transport-icon ${transportIconClass}">
+                <i class="fas fa-${transportIconClass}"></i>
+            </div>
+            <div class="transport-details">
+                <h4>${vehicle.id}</h4>
+                <p>${vehicle.route}</p>
+                <div class="transport-status">
+                    <span class="status-badge ${statusBadgeClass}">${vehicle.status}</span>
+                    <span class="eta">ETA: ${vehicle.eta}</span>
+                </div>
+            </div>
+        `;
+        
+        transportList.appendChild(transportItem);
+    });
+}
+
+// Format time
+function formatTime(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins} min ago`;
+    
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+    
+    const diffDays = Math.floor(diffHours / 24);
+    return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+}
+
+// Show page
+function showPage(pageId) {
+    const pageSections = document.querySelectorAll('.page-section');
+    pageSections.forEach(section => {
+        section.classList.remove('active');
+    });
+    document.getElementById(pageId).classList.add('active');
+}
+
+// Handle navigation
+function handleNavigation() {
+    const navLinks = document.querySelectorAll('.nav-link');
+    
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetPage = link.getAttribute('data-page');
+            showPage(targetPage);
+            
+            // Update active nav link
+            navLinks.forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
+        });
+    });
+}
+
+// Handle feature cards
+function handleFeatureCards() {
+    const featureCards = document.querySelectorAll('.feature-card');
+    
+    featureCards.forEach(card => {
+        card.addEventListener('click', () => {
+            const featureTitle = card.querySelector('h3').textContent;
+            showNotification(`Opening ${featureTitle} feature...`, 'info');
+        });
+    });
+}
+
+// Handle status cards
+function handleStatusCards() {
+    const statusCards = document.querySelectorAll('.status-card');
+    
+    statusCards.forEach(card => {
+        card.addEventListener('click', () => {
+            const statusTitle = card.querySelector('h3').textContent;
+            showNotification(`Showing ${statusTitle} traffic areas...`, 'info');
+        });
+    });
+}
+
+// Handle route form
+function handleRouteForm() {
+    const routeForm = document.getElementById('routeForm');
+    
+    routeForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const routeData = {
+            origin: document.getElementById('origin').value,
+            destination: document.getElementById('destination').value,
+            vehicle: document.getElementById('vehicle').value,
+            preferences: Array.from(document.querySelectorAll('input[name="preferences"]:checked'))
+                .map(cb => cb.value)
+        };
+        
+        const result = await findRoutes(routeData);
+        
+        if (result.success) {
+            displayRoutes(result.data);
+            showNotification('Routes found successfully!', 'success');
+        } else {
+            showNotification(result.error, 'error');
+        }
+    });
+}
+
+// Handle public transport tracking
+function handlePublicTransportTracking() {
+    const trackBuses = document.getElementById('trackBuses');
+    const trackTrains = document.getElementById('trackTrains');
+    const citySelect = document.getElementById('citySelect');
+    
+    trackBuses.addEventListener('click', async () => {
+        const city = citySelect.value;
+        if (!city) {
+            showNotification('Please select a city first', 'warning');
+            return;
+        }
+        
+        const result = await trackPublicTransport(city);
+        
+        if (result.success) {
+            displayPublicTransport(result.data);
+            showNotification(`Tracking buses in ${city.charAt(0).toUpperCase() + city.slice(1)}`, 'success');
+        } else {
+            showNotification(result.error, 'error');
+        }
+    });
+    
+    trackTrains.addEventListener('click', async () => {
+        const city = citySelect.value;
+        if (!city) {
+            showNotification('Please select a city first', 'warning');
+            return;
+        }
+        
+        const result = await trackPublicTransport(city);
+        
+        if (result.success) {
+            displayPublicTransport(result.data);
+            showNotification(`Tracking trains in ${city.charAt(0).toUpperCase() + city.slice(1)}`, 'success');
+        } else {
+            showNotification(result.error, 'error');
+        }
+    });
+}
+
+// Handle login modal
+function handleLoginModal() {
+    const loginBtn = document.getElementById('loginBtn');
+    const loginModal = document.getElementById('loginModal');
+    const closeLoginModal = document.getElementById('closeLoginModal');
+    
+    loginBtn.addEventListener('click', () => {
+        loginModal.classList.add('active');
+    });
+    
+    closeLoginModal.addEventListener('click', () => {
+        loginModal.classList.remove('active');
+    });
+    
+    // Handle login/register tabs
+    const tabs = document.querySelectorAll('#loginModal .tab');
+    
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const tabId = tab.getAttribute('data-tab');
+            
+            // Update active tab
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            
+            // Show corresponding content
+            document.querySelectorAll('#loginModal .tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
+        });
+    });
+    
+    // Handle login form
+    const loginForm = document.getElementById('loginForm');
+    
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+        
+        const result = await loginUser({ email, password });
+        
+        if (result.success) {
+            loginModal.classList.remove('active');
+            updateUserUI(result.data.user);
+            showNotification('Login successful! Welcome back.', 'success');
+        } else {
+            showNotification(result.error, 'error');
+        }
+    });
+    
+    // Handle register form
+    const registerForm = document.getElementById('registerForm');
+    
+    registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const name = document.getElementById('registerName').value;
+        const email = document.getElementById('registerEmail').value;
+        const password = document.getElementById('registerPassword').value;
+        
+        const result = await registerUser({ name, email, password });
+        
+        if (result.success) {
+            loginModal.classList.remove('active');
+            updateUserUI(result.data.user);
+            showNotification('Registration successful! Welcome to AI Traffic Management.', 'success');
+        } else {
+            showNotification(result.error, 'error');
+        }
+    });
+}
+
+// Handle hero buttons
+function handleHeroButtons() {
+    const startJourney = document.getElementById('startJourney');
+    const findRoutes = document.getElementById('findRoutes');
+    
+    startJourney.addEventListener('click', () => {
+        showPage('dashboard');
+        showNotification('Redirecting to dashboard...', 'success');
+    });
+    
+    findRoutes.addEventListener('click', () => {
+        showPage('routes');
+        showNotification('Opening route finder...', 'info');
+    });
+}
+
+// Initialize dashboard
+function initializeDashboard() {
+    // Load traffic incidents
+    getTrafficIncidents().then(result => {
+        if (result.success) {
+            displayTrafficIncidents(result.data);
+        }
+    });
+    
+    // Load traffic alerts
+    getTrafficIncidents().then(result => {
+        if (result.success) {
+            displayTrafficAlerts(result.data);
+        }
+    });
+}
+
+// Initialize analytics
+function initializeAnalytics() {
+    // Load traffic analytics
+    getTrafficAnalytics().then(result => {
+        if (result.success) {
+            // Display analytics data
+            console.log('Analytics data loaded:', result.data);
+        }
+    });
+}
+
+
+
+
+
+
+
+
+// API Base URL
+const API_URL = 'http://localhost:5000/api';
+
+// Authentication state
+let authToken = localStorage.getItem('authToken');
+let currentUser = null;
+
+// Check if user is logged in
+function checkAuthStatus() {
+    if (authToken) {
+        fetchUserProfile();
+    }
+}
+
+// Fetch user profile
+async function fetchUserProfile() {
+    try {
+        const response = await fetch(`${API_URL}/users/profile`, {
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            }
+        });
+        
+        if (response.ok) {
+            const user = await response.json();
+            currentUser = user;
+            updateUserUI(user);
+        } else {
+            // Token is invalid
+            localStorage.removeItem('authToken');
+            authToken = null;
+        }
+    } catch (error) {
+        console.error('Error fetching user profile:', error);
+    }
+}
+
+// User Registration
+async function registerUser(userData) {
+    try {
+        const response = await fetch(`${API_URL}/users/register`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(userData)
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            authToken = data.token;
+            localStorage.setItem('authToken', authToken);
+            currentUser = data.user;
+            return { success: true, data };
+        } else {
+            return { success: false, error: data.message };
+        }
+    } catch (error) {
+        console.error('Registration error:', error);
+        return { success: false, error: 'Registration failed. Please try again.' };
+    }
+}
+
+// User Login
+async function loginUser(credentials) {
+    try {
+        const response = await fetch(`${API_URL}/users/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(credentials)
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            authToken = data.token;
+            localStorage.setItem('authToken', authToken);
+            currentUser = data.user;
+            return { success: true, data };
+        } else {
+            return { success: false, error: data.message };
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        return { success: false, error: 'Login failed. Please try again.' };
+    }
+}
+
+// Create Trip
+async function createTrip(tripData) {
+    if (!authToken) {
+        return { success: false, error: 'Please login to register a trip' };
+    }
+    
+    try {
+        const response = await fetch(`${API_URL}/trips`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            },
+            body: JSON.stringify(tripData)
+        });
+        
+        const trip = await response.json();
+        
+        if (response.ok) {
+            return { success: true, data: trip };
+        } else {
+            return { success: false, error: 'Failed to register trip' };
+        }
+    } catch (error) {
+        console.error('Trip registration error:', error);
+        return { success: false, error: 'Failed to register trip. Please try again.' };
+    }
+}
+
+// Get User Trips
+async function getUserTrips() {
+    if (!authToken) {
+        return { success: false, error: 'Please login to view trips' };
+    }
+    
+    try {
+        const response = await fetch(`${API_URL}/trips`, {
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            }
+        });
+        
+        if (response.ok) {
+            const trips = await response.json();
+            return { success: true, data: trips };
+        } else {
+            return { success: false, error: 'Failed to fetch trips' };
+        }
+    } catch (error) {
+        console.error('Error fetching trips:', error);
+        return { success: false, error: 'Failed to fetch trips. Please try again.' };
+    }
+}
+
+// Submit Feedback
+async function submitFeedback(feedbackData) {
+    if (!authToken) {
+        return { success: false, error: 'Please login to submit feedback' };
+    }
+    
+    try {
+        const response = await fetch(`${API_URL}/feedback`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            },
+            body: JSON.stringify(feedbackData)
+        });
+        
+        if (response.ok) {
+            return { success: true };
+        } else {
+            return { success: false, error: 'Failed to submit feedback' };
+        }
+    } catch (error) {
+        console.error('Feedback submission error:', error);
+        return { success: false, error: 'Failed to submit feedback. Please try again.' };
+    }
+}
+
+// Get Feedback
+async function getFeedback() {
+    try {
+        const response = await fetch(`${API_URL}/feedback`);
+        
+        if (response.ok) {
+            const feedback = await response.json();
+            return { success: true, data: feedback };
+        } else {
+            return { success: false, error: 'Failed to fetch feedback' };
+        }
+    } catch (error) {
+        console.error('Error fetching feedback:', error);
+        return { success: false, error: 'Failed to fetch feedback. Please try again.' };
+    }
+}
+
+// Send SOS Alert
+async function sendSOSAlert(sosData) {
+    if (!authToken) {
+        return { success: false, error: 'Please login to use SOS feature' };
+    }
+    
+    try {
+        const response = await fetch(`${API_URL}/sos`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            },
+            body: JSON.stringify(sosData)
+        });
+        
+        if (response.ok) {
+            return { success: true };
+        } else {
+            return { success: false, error: 'Failed to send SOS alert' };
+        }
+    } catch (error) {
+        console.error('SOS error:', error);
+        return { success: false, error: 'Failed to send SOS alert. Please try again.' };
+    }
+}
+
+// Find Routes
+async function findRoutes(routeData) {
+    try {
+        const response = await fetch(`${API_URL}/routes`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(routeData)
+        });
+        
+        if (response.ok) {
+            const routes = await response.json();
+            return { success: true, data: routes };
+        } else {
+            return { success: false, error: 'Failed to find routes' };
+        }
+    } catch (error) {
+        console.error('Route finder error:', error);
+        return { success: false, error: 'Failed to find routes. Please try again.' };
+    }
+}
+
+// Track Public Transport
+async function trackPublicTransport(city) {
+    try {
+        const response = await fetch(`${API_URL}/transport/${city}`);
+        
+        if (response.ok) {
+            const vehicles = await response.json();
+            return { success: true, data: vehicles };
+        } else {
+            return { success: false, error: 'Failed to track public transport' };
+        }
+    } catch (error) {
+        console.error('Public transport tracking error:', error);
+        return { success: false, error: 'Failed to track public transport. Please try again.' };
+    }
+}
+
+// Get Leaderboard
+async function getLeaderboard() {
+    try {
+        const response = await fetch(`${API_URL}/leaderboard`);
+        
+        if (response.ok) {
+            const users = await response.json();
+            return { success: true, data: users };
+        } else {
+            return { success: false, error: 'Failed to fetch leaderboard' };
+        }
+    } catch (error) {
+        console.error('Error fetching leaderboard:', error);
+        return { success: false, error: 'Failed to fetch leaderboard. Please try again.' };
+    }
+}
+
+// Get Pending Trips (Admin)
+async function getPendingTrips() {
+    if (!authToken || !currentUser || currentUser.role !== 'admin') {
+        return { success: false, error: 'Access denied' };
+    }
+    
+    try {
+        const response = await fetch(`${API_URL}/trips/pending`, {
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            }
+        });
+        
+        if (response.ok) {
+            const trips = await response.json();
+            return { success: true, data: trips };
+        } else {
+            return { success: false, error: 'Failed to fetch pending trips' };
+        }
+    } catch (error) {
+        console.error('Error fetching pending trips:', error);
+        return { success: false, error: 'Failed to fetch pending trips. Please try again.' };
+    }
+}
+
+// Update Trip Status (Admin)
+async function updateTripStatus(tripId, status) {
+    if (!authToken || !currentUser || currentUser.role !== 'admin') {
+        return { success: false, error: 'Access denied' };
+    }
+    
+    try {
+        const response = await fetch(`${API_URL}/trips/${tripId}/status`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            },
+            body: JSON.stringify({ status })
+        });
+        
+        if (response.ok) {
+            return { success: true };
+        } else {
+            return { success: false, error: 'Failed to update trip status' };
+        }
+    } catch (error) {
+        console.error('Error updating trip status:', error);
+        return { success: false, error: 'Failed to update trip status. Please try again.' };
+    }
+}
+
+// Get SOS Alerts (Admin)
+async function getSOSAlerts() {
+    if (!authToken || !currentUser || currentUser.role !== 'admin') {
+        return { success: false, error: 'Access denied' };
+    }
+    
+    try {
+        const response = await fetch(`${API_URL}/sos`, {
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            }
+        });
+        
+        if (response.ok) {
+            const alerts = await response.json();
+            return { success: true, data: alerts };
+        } else {
+            return { success: false, error: 'Failed to fetch SOS alerts' };
+        }
+    } catch (error) {
+        console.error('Error fetching SOS alerts:', error);
+        return { success: false, error: 'Failed to fetch SOS alerts. Please try again.' };
+    }
+}
+
+// Update SOS Status (Admin)
+async function updateSOSStatus(sosId, status) {
+    if (!authToken || !currentUser || currentUser.role !== 'admin') {
+        return { success: false, error: 'Access denied' };
+    }
+    
+    try {
+        const response = await fetch(`${API_URL}/sos/${sosId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            },
+            body: JSON.stringify({ status })
+        });
+        
+        if (response.ok) {
+            return { success: true };
+        } else {
+            return { success: false, error: 'Failed to update SOS status' };
+        }
+    } catch (error) {
+        console.error('Error updating SOS status:', error);
+        return { success: false, error: 'Failed to update SOS status. Please try again.' };
+    }
+}
+    </script>
+</body>
+
+</html>
